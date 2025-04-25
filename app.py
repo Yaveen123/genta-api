@@ -17,6 +17,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqlconnector://{DB_USER}:{DB_P
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # To suppress a warning
 db = SQLAlchemy(app)
 
+@app.route('/')
+def home():
+    return "Hello!! This is a test env."
 # Define your database models here
 
 if __name__ == '__main__':
