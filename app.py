@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqlconnector://{DB_USER}:{DB_P
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # To suppress a warning
 db = SQLAlchemy(app)
 
-CORS(app, resources={r"/add_user": {"origins": ["http://genta.live", "http://127.0.0.1:5000"]}})
+CORS(app, resources={r"/add_user": {"origins": ["https://genta.live", "http://127.0.0.1:5000"]}})
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
