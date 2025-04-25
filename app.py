@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -11,14 +12,12 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_NAME = os.getenv('DB_NAME')
 
-
-
-
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # To suppress a warning
 db = SQLAlchemy(app)
+
+CORS(app, resources={r"/add_user": {"origins": ["http://genta.live", "http://127.0.0.1:5000"]}})
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,7 +38,7 @@ def add_user():
     results = db.session.execute(db.text("SELECT * FROM user")).fetchall()
     # Process the results as needed
     data = [row._asdict() for row in results]  # Convert SQLAlchemy Row objects to dictionaries
-    return data
+    return jsonify(data)
 
 
 @app.route('/')
