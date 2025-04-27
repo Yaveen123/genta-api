@@ -5,3 +5,4 @@ Flask-SQLAlchemy
 python-dotenv
 requests
 Flask-CORS
+google-auth
