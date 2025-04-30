@@ -80,7 +80,7 @@ def add_user():
 
 @app.route('/')
 def home():
-    return "Hello!! This is a test env"
+    return "Welcome to Genta API"
 
 if __name__ == '__main__':
     with app.app_context():
