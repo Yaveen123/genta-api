@@ -159,7 +159,87 @@ def add_user():
     return getUserDataFromDB("123456789")
 
 
+def getUserDataFromDB(user_google_id):
+    user_record = User.query.filter_by(googleId=user_google_id).first()
+    # Like SELECT * FROM users WHERE googleID=user_google_id but SQL alchemy style 
+    # and only grabs the first one (well there should only be one)
+    user_db_id = None
+    user_version_tag = None
 
+    if user_record is None:
+        new_version_tag = str(uuid.uuid4()) # Create a new UUID for a ver tag
+        try:
+            new_user = User(googleId=user_google_id, versionTag=new_version_tag) # Create a new user
+            db.session.add(new_user)
+            db.session.commit()
+            user_db_id = new_user.id # set the variable as the actual new id now
+            user_version_tag = new_version_tag
+        except Exception as err:
+            print(f"Error creating new user: {err}")
+            db.session.rollback()
+            return None
+    else:
+        user_db_id = user_record.id
+        user_version_tag = user_record.versionTag
+    
+    # Failsafe if something else went wrong during creation
+    # My solution is to just return a fully blank slate
+    if user_db_id == None:
+        return {
+            "user_db_id": None,
+            "user_version_tag": None,
+            "projects": []
+        }
+    
+    # Time to get every project and the data nested within them
+
+    # Get all the projects that belong to that user
+    projects_from_db = Project.query.filter_by(userId=user_db_id).all()
+    assembled_projects_data = []
+
+    # if there are any projects, for each proj get their events
+    if projects_from_db:
+        for current_project_from_db in projects_from_db:
+            project_dict = {
+                "id": current_project_from_db.id,
+                "projectTitle":current_project_from_db.projectTitle,
+                "dueDate":str(current_project_from_db.dueDate), # conv date to str
+                "events": [],
+            }
+
+            # Get all events from db
+            events_from_db = Event.query.filter_by(projectId=current_project_from_db.id)
+            
+            if events_from_db:
+                for current_event_from_db in events_from_db:
+                    event_dict = {
+                        "id": current_event_from_db.id,
+                        "title": current_event_from_db.title,
+                        "collapsed": current_event_from_db.collapsed,
+                        "dueDate": str(current_event_from_db.dueDate), # conv Date object to string
+                        "notes": current_event_from_db.notes,
+                        "notesShown": current_event_from_db.notesShown,
+                        "todoShown": current_event_from_db.todoShown,  
+                        "todo": []
+                    }
+
+                    # get the todos
+                    todos_from_db = Todo.query.filter_by(eventId=current_event_from_db.id).all()
+                    if todos_from_db:
+                        for current_todo_from_db in todos_from_db:
+                            todo_dict = {
+                                "id": current_todo_from_db.id,
+                                "checked": current_todo_from_db.checked,
+                                "content": current_todo_from_db.content
+                            }
+                            event_dict["todo"].append(todo_dict)
+                        project_dict["events"].append(event_dict)
+                assembled_projects_data.append(project_dict)
+    return {
+        "user_db_id": user_db_id,
+        "user_version_tag": user_version_tag,
+        "projects": assembled_projects_data
+    }
 
 
 
