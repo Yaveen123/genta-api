@@ -47,6 +47,10 @@ class User(db.Model):
     versionTag = db.Column(db.String(255), nullable=False) 
 
     # I need to define a one to many relationship here
+    # cacading all using delete-orphan means that if...
+    # ...a user is deleted their projects are deleted
+    # ...a project is deleted their events are deleted
+    # ...a event is deleted their todos are deleted
     # SQL Alchemy (2021) Linking Rels w Backref https://docs.sqlalchemy.org/en/13/orm/backref.html 
     projects = db.relationship('Project', backref='user', lazy=True, cascade="all, delete-orphan")
 
@@ -148,9 +152,14 @@ def add_user():
     # user_email = user_info['email']
     # Check if the user exists in your database or create a new one
 
-    results = db.session.execute(db.text("SELECT * FROM todos")).fetchall()
-    data = [row._asdict() for row in results]
-    return jsonify(data)
+    # results = db.session.execute(db.text("SELECT * FROM todos")).fetchall()
+    # data = [row._asdict() for row in results]
+    # return jsonify(data)
+
+    return getUserDataFromDB("123456789")
+
+
+
 
 
 
