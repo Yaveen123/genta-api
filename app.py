@@ -116,6 +116,7 @@ def verify_google_token(token):
             raise ValueError('Wrong issuer.')
 
         # ID token is valid and you can access user information here
+        # This is vendor provided code but it isn't used; it represents what the stuff inside idinfo stores
         user_id = idinfo['sub']
         email = idinfo['email']
         # You might want to verify the 'aud' (audience) matches your client ID
@@ -135,7 +136,7 @@ def token_required(f):
             user_info = verify_google_token(id_token_str)
             if user_info:
                 # Optionally pass the user_info to the route if needed
-                return f(*args, **kwargs)
+                return f(user_info=user_info, *args, **kwargs) # Pass the user_info var to the decorated func
             else:
                 return jsonify({'message': 'Invalid Google ID token'}), 401
         else:
@@ -145,18 +146,10 @@ def token_required(f):
 
 @app.route('/add_user')
 @token_required
-def add_user():
-    # The user is authenticated at this point
-    # You can now access user information if you modified the decorator
-    # For example, if you passed user_info:
-    # user_email = user_info['email']
-    # Check if the user exists in your database or create a new one
-
-    # results = db.session.execute(db.text("SELECT * FROM todos")).fetchall()
-    # data = [row._asdict() for row in results]
-    # return jsonify(data)
-
-    return getUserDataFromDB("123456789")
+def add_user(user_info):
+    # Get the user ID to retrieve the data for that user from the database
+    user_id = user_info['user_id']
+    return getUserDataFromDB(user_id)
 
 
 def getUserDataFromDB(user_google_id):
