@@ -35,7 +35,7 @@ CORS(app, resources={r"/add_user": {"origins": [
     "http://localhost:6969"
 ]}})
 
-
+#MARK: SQLalchemy models
 # Setup SQL alchemy models
 # SQL Alchemy (n.d.) Models and Tables https://flask-sqlalchemy.readthedocs.io/en/stable/models/
 # The user table
@@ -108,6 +108,7 @@ class Todo(db.Model):
 
 
 
+#MARK: Google IdP
 # Vendor provided code (Google Identity)
 def verify_google_token(token):
     """Verifies the Google ID token."""
@@ -146,14 +147,9 @@ def token_required(f):
     return decorated_function
 
 
-@app.route('/add_user')
-@token_required
-def add_user(user_info):
-    # Get the user ID to retrieve the data for that user from the database
-    user_id = user_info['user_id']
-    return getUserDataFromDB(user_id)
 
 
+#MARK: getUserDataFromDB
 def getUserDataFromDB(user_google_id):
     user_record = User.query.filter_by(googleId=user_google_id).first()
     # Like SELECT * FROM users WHERE googleID=user_google_id but SQL alchemy style 
@@ -236,6 +232,7 @@ def getUserDataFromDB(user_google_id):
         "projects": assembled_projects_data
     }
 
+#MARK:editDatabase
 def editDatabase(user_db_id, projects_from_client_list, existing_projects_list_from_db):
     processed_project_ids_from_client = set() #a set stores unique IDs and all project IDs should be unique
 
@@ -408,6 +405,7 @@ def editDatabase(user_db_id, projects_from_client_list, existing_projects_list_f
             for todo_client_data in todos_from_client:
                 existing_todo_in_db = None
 
+                print(f"todo client id = {todo_client_data.get('id')}")
                 #  if there are actually todos
                 if todo_client_data.get('id') != None:
                     # get todos that exist
@@ -429,7 +427,7 @@ def editDatabase(user_db_id, projects_from_client_list, existing_projects_list_f
                     if todo_client_data.get('content') != existing_todo_in_db.content:
                         existing_todo_in_db.content = todo_client_data['content']
                         updated = True
-                    # if changes are present stage them for committing
+                    # if changes are present stage them for commit
                     if updated:
                         db.session.add(existing_todo_in_db)
                     
@@ -468,6 +466,87 @@ def editDatabase(user_db_id, projects_from_client_list, existing_projects_list_f
         print(f"problem w database {err}")
         return f"Database update failed: {err}"
 
+
+
+
+#MARK: /verify-login
+@app.route('/verify-login', methods=['GET']) 
+@token_required
+def verify_login():
+    # If this point is reached, token_required has passed and user is signed in
+    return jsonify({"message": "Successfully signed in with Google."}), 200
+
+#MARK: /get-data
+@app.route('/get-data', methods=['GET'])
+@token_required
+def get_data(user_info):
+    # Get the user ID to retrieve the data for that user from the database
+    user_id = user_info['user_id']
+    print(user_info)
+    try:
+        return jsonify(getUserDataFromDB(user_id))
+    except Exception as err:
+        return jsonify({"error": err}), 500 
+
+#MARK: /update-data
+@app.route('/update-data', methods=['POST'])
+@token_required
+def update_data(user_info):
+    print(user_info)
+    try:
+        # Get the data from the POST request payload
+        data_from_request = request.get_json()
+        if not data_from_request:
+            return jsonify({"error": "Invalid JSON data provided"}), 400
+        
+        # get the version tag and the projects to update
+        client_version_tag = data_from_request.get('user_version_tag')
+        projects_to_update_from_client = data_from_request.get('projects', [])
+
+        # get the user's ID from JWT auth
+        user_id = user_info['user_id']
+
+        user_on_db = User.query.filter_by(googleId=user_id).all()
+
+        if not user_on_db:
+            return jsonify({"error":"User does not exist on the database. Run /get-data endpoint to create a user."}), 404
+
+        # Get info from the database to feed into editDatabase() func
+        current_data_from_db = getUserDataFromDB(user_id)
+        user_db_id = current_data_from_db["user_db_id"]
+        current_db_version_tag = current_data_from_db["user_version_tag"]
+        existing_projects_from_db = Project.query.filter_by(userId=user_db_id).all()
+
+        # if there isnt a user ID (shouldnt happen)
+        if user_db_id is None:
+            return jsonify({"error": "User does not exist and could not be created."}), 400
+        # if the version tag for the client is outdated, the client needs to refresh and update to get the latest changes
+        if current_db_version_tag != client_version_tag:
+            print(f"Current db version tag: {current_db_version_tag}")
+            print(f"Client version tag: {client_version_tag}")
+            return jsonify({"error": "Client data is outdated. Please refresh to get the latest data."}), 409 # HTTP 409 is a conflict err
+
+        # edit the database using the editDatabase() func
+        edit_result = editDatabase(user_db_id, projects_to_update_from_client, existing_projects_from_db)
+
+        # check if the edit ran successfully
+        if "ERROR" in edit_result:
+            return jsonify({"error": edit_result}), 400 # Or 500 if a server-side error
+        else:
+            # Successful edit!!
+            # generate new version tag and commit the changes to the database
+            new_app_version_tag = str(uuid.uuid4())
+            user_record = User.query.get(user_db_id)
+            user_record.versionTag = new_app_version_tag
+            db.session.commit() 
+
+            return jsonify({
+                "message": "Data updated successfully.",
+                "newVersionTag": new_app_version_tag
+            }), 200
+    except Exception as err:
+        print(f"Error in update_data route: {err}")
+        return jsonify({"error": f"Error processing request: {err}"}), 500
 
 
 @app.route('/')
