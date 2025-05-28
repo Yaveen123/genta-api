@@ -484,7 +484,7 @@ def editDatabase(user_db_id, projects_from_client_list, existing_projects_list_f
 #MARK: /verify-login
 @app.route('/verify-login', methods=['GET']) 
 @token_required
-def verify_login():
+def verify_login(user_info):
     # If this point is reached, token_required has passed and user is signed in
     return jsonify({"message": "Successfully signed in with Google."}), 200
 
