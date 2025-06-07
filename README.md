@@ -14,8 +14,9 @@ I am just a student, and there are most definitely vulnerabilities or areas for 
 
 
 ## API routes
-> [!CAUTION]
-> These may be non-functional or partially functional.
+> [!TIP]
+> Although Genta is "finished", these may still have bugs or problems.
+> If you find anything please let me know!
 
 | Route | Description |
 | - | - |
