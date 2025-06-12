@@ -26,4 +26,4 @@ I am just a student, and there are most definitely vulnerabilities or areas for 
 
 
 ### License
-Genta General  © 2025 by Yavisht Behari is licensed under CC BY-NC-SA 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/
+Genta API  © 2025 by Yavisht Behari is licensed under CC BY-NC-SA 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/
