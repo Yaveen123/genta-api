@@ -24,6 +24,3 @@ I am just a student, and there are most definitely vulnerabilities or areas for 
 | https://genta-api.online/get-data | Returns user data as JSON. Users are identified Google account sub returned when verifying JWT. | 
 | https://genta-api.online/update-data | Edits user data on database through reading the JSON within the payload of the request. |
 
-
-### License
-Genta API  © 2025 by Yavisht Behari is licensed under CC BY-NC-SA 4.0. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/
