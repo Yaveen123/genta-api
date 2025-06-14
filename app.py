@@ -236,8 +236,8 @@ def getUserDataFromDB(user_google_id):
                                 "content": current_todo_from_db.content
                             }
                             event_dict["todo"].append(todo_dict)
-                        project_dict["events"].append(event_dict)
-                assembled_projects_data.append(project_dict)
+                    project_dict["events"].append(event_dict)
+            assembled_projects_data.append(project_dict)
     return {
         "user_db_id": user_db_id,
         "user_version_tag": user_version_tag,
@@ -340,7 +340,7 @@ def editDatabase(user_db_id, projects_from_client_list, existing_projects_list_f
                 # checks to see if there was any match
                 if existing_event_in_db == None:
                     # this should never happen because the database should always have something to edit 
-                    return f"ERROR: event with ID {event_client_data["id"]} is not found in table projects w id: {current_project_id_in_db}"
+                    return f"ERROR: event with ID {event_client_data['id']} is not found in table projects w id: {current_project_id_in_db}"
                 
                 current_event_id_in_db = existing_event_in_db.id
                 updated = False
@@ -428,8 +428,8 @@ def editDatabase(user_db_id, projects_from_client_list, existing_projects_list_f
                             break
                     # otherwise raise an err (should never happen)
                     if existing_todo_in_db == None:
-                        return f"ERROR: todo with id {todo_client_data["id"]} cannot be found"
-                    
+                        return f"ERROR: todo with id {todo_client_data['id']} cannot be found"
+                
                     # now we can check each part of the todo item thing tos ee if its changed
                     current_todo_id_in_db = existing_todo_in_db.id
                     updated = False
