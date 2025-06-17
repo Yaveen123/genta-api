@@ -1,10 +1,9 @@
 # Welcome to Genta API!
-I am just a student, and there are most definitely vulnerabilities or areas for improvement! If so, could you please let me know asap! Thank you so much :D
+Genta is a productivity tool for individuals! It's unique structure makes it perfect for freelancers and students!
+<img width="250" alt="Frame 69366" src="https://github.com/user-attachments/assets/d53b5ca3-1bb2-4c23-ba79-9bf11f4a4edd" />
+<img width="250" alt="Frame 69365" src="https://github.com/user-attachments/assets/dcb7afa6-98f9-404f-b0f9-6da7c11560a1" />
 
-> [!IMPORTANT]  
-> Development on Genta has ended. 
-
-
+## Technical information
 |  | ➡️ Backend Microservice ⬅️ | Frontend Microservice | 
 | - | ---------------------| -----------------------|
 | _Branding image_ |  ![Frame 69372](https://github.com/user-attachments/assets/2cacf5a7-d310-49d0-bf8c-f2492b1077b7)  |  ![Frame 69371](https://github.com/user-attachments/assets/5887b990-1b86-4ec8-b353-1f2c67fac721) |
@@ -24,3 +23,8 @@ I am just a student, and there are most definitely vulnerabilities or areas for 
 | https://genta-api.online/get-data | Returns user data as JSON. Users are identified Google account sub returned when verifying JWT. | 
 | https://genta-api.online/update-data | Edits user data on database through reading the JSON within the payload of the request. |
 
+## Business information
+> [!IMPORTANT]  
+> Genta is a proof of concept, and it's codebase is not amazing. <br>
+> We don't know if we should take Genta further. <br>
+> Have business advice? Contact us on ybehari@outlook.com || hi@ileb.zip
